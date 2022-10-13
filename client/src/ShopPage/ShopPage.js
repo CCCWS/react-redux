@@ -5,7 +5,7 @@ import Cart from "./components/Cart/Cart";
 import Layout from "./components/Layout/Layout";
 import Products from "./components/Shop/Products";
 import Notification from "./components/UI/Notification ";
-import { sendCartData } from "../store/reducer/cart";
+import { sendCartData, getCartData } from "../store/reducer/cart-action";
 
 const ShopPage = () => {
   const dispatch = useDispatch();
@@ -13,7 +13,11 @@ const ShopPage = () => {
   const notification = useSelector((state) => state.cartView.notification);
 
   useEffect(() => {
-    if (cart.totalQuantity !== 0) {
+    dispatch(getCartData());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!cart.cartInit) {
       dispatch(sendCartData(cart));
     }
   }, [cart, dispatch]);

@@ -5,7 +5,6 @@ let CART = [];
 let totalQuantity = 0;
 
 router.post("/add", (req, res) => {
-  console.log(CART);
   try {
     CART = req.body.cartList;
     totalQuantity = req.body.totalQuantity;
@@ -16,7 +15,17 @@ router.post("/add", (req, res) => {
 });
 
 router.get("/getCart", (req, res) => {
-  console.log("test");
+  try {
+    return res
+      .status(201)
+      .json({ cart: CART, totalQuantity: totalQuantity, success: true });
+  } catch (err) {
+    return res.status(400).json({ success: false });
+  }
+});
+
+router.get("/test", (req, res) => {
+  console.log(CART);
   res.status(201).json(CART);
 });
 

@@ -11,30 +11,34 @@ const Notification = ({ notification }) => {
 
     let timer = setTimeout(() => {
       setShow(false);
-    }, 1000);
+    }, 1500);
 
     return () => {
       clearTimeout(timer);
     };
   }, [notification]);
 
-  let specialClasses = "";
+  let status = "";
 
   if (notification.status === "fail") {
-    specialClasses = "error";
+    status = "error";
   }
   if (notification.status === "success") {
-    specialClasses = "success";
+    status = "success";
   }
-
-  const cssClasses = `notification ${specialClasses}`;
 
   return (
     <>
-      <section className={cssClasses}>
-        <h2>{notification.title}</h2>
-        <div>{notification.message}</div>
-      </section>
+      <TransitionGroup>
+        {show && (
+          <CSSTransition timeout={500} classNames="fade">
+            <section className={`notification ${status}`}>
+              <h2>{notification.title}</h2>
+              <div>{notification.message}</div>
+            </section>
+          </CSSTransition>
+        )}
+      </TransitionGroup>
     </>
   );
 };

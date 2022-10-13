@@ -1,18 +1,23 @@
 import { createSlice, current } from "@reduxjs/toolkit";
-import axios from "axios";
 
-import { cartViewAction } from "./cartView";
-
-const cartState = { cartList: [], totalQuantity: 0 };
+//cartInit > 가장 먼저 서버에 있는 데이터를 불러올때 카트가 업데이트 되면서
+//동시에 업데이트 함수가 함께 실행되는 문제가 발생함
+//초기값을 true로 주어서 true일시 업데이트를 하지않게 조건으로 사용
+const cartState = { cartList: [], totalQuantity: 0, cartInit: true };
 const cartSlice = createSlice({
   name: "cart",
   initialState: cartState,
   reducers: {
+    init(state, action) {
+      state.cartList = action.payload.cart;
+      state.totalQuantity = action.payload.totalQuantity;
+    },
+
     add(state, action) {
       const newItem = action.payload;
       const itemCheck = state.cartList.find((data) => data.id === newItem.id);
       //이미 카드에 있는 아이템인지 확인
-
+      state.cartInit = false;
       state.totalQuantity++;
 
       if (!itemCheck) {
@@ -33,6 +38,7 @@ const cartSlice = createSlice({
         (data) => data.id === action.payload
       );
 
+      state.cartInit = false;
       itemCheck.quantity++;
       itemCheck.totalPrice = itemCheck.quantity * itemCheck.price;
     },
@@ -43,6 +49,7 @@ const cartSlice = createSlice({
         (data) => data.id === action.payload
       );
 
+      state.cartInit = false;
       itemCheck.quantity--;
       itemCheck.totalPrice = itemCheck.quantity * itemCheck.price;
 
@@ -54,43 +61,6 @@ const cartSlice = createSlice({
     },
   },
 });
-
-export const sendCartData = (cart) => {
-  return async (dispatch) => {
-    const sendApi = async () => {
-      dispatch(
-        cartViewAction.setNotification({
-          status: "send",
-          title: "전송중",
-          message: "데이터를 전송중입니다.",
-        })
-      );
-
-      const res = await axios.post("/api/cart/add", { ...cart });
-
-      if (!res.data.success) {
-        dispatch(
-          cartViewAction.setNotification({
-            status: "fail",
-            title: "실패",
-            message: "데이터를 전송이 실패하였습니다.",
-          })
-        );
-        throw new Error("장바구니 추가 실패");
-      }
-    };
-
-    sendApi();
-
-    dispatch(
-      cartViewAction.setNotification({
-        status: "success",
-        title: "성공",
-        message: "데이터를 전송이 성공하였습니다.",
-      })
-    );
-  };
-};
 
 export const cartAction = cartSlice.actions;
 export default cartSlice.reducer;
